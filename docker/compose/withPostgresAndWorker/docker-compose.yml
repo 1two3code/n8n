@@ -1,15 +1,15 @@
 version: '3.8'
 
 x-shared: &shared
-  restart: unless-stopped
+  restart: ${RESTART_POLICY}
   image: docker.n8n.io/n8nio/n8n
   environment:
     - DB_TYPE=postgresdb
     - DB_POSTGRESDB_HOST=postgres
     - DB_POSTGRESDB_PORT=5432
-    - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
-    - DB_POSTGRESDB_USER=${POSTGRES_NON_ROOT_USER}
-    - DB_POSTGRESDB_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+    - DB_POSTGRESDB_DATABASE=${POSTGRES_N8N_DB}
+    - DB_POSTGRESDB_USER=${POSTGRES_N8N_USER}
+    - DB_POSTGRESDB_PASSWORD=${POSTGRES_N8N_PASSWORD}
     - EXECUTIONS_MODE=queue
     - QUEUE_BULL_REDIS_HOST=redis
     - QUEUE_HEALTH_CHECK_ACTIVE=true
@@ -26,15 +26,20 @@ x-shared: &shared
 
 services:
   postgres:
-    image: postgres:11
+    image: postgres:${POSTGRES_IMAGE_TAG}
+    restart: ${RESTART_POLICY}
     container_name: rkt-postgres
-    restart: unless-stopped
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
-      - POSTGRES_NON_ROOT_USER
-      - POSTGRES_NON_ROOT_PASSWORD
+      - POSTGRES_N8N_DB
+      - POSTGRES_N8N_USER
+      - POSTGRES_N8N_PASSWORD
+      - POSTGRES_MM_DB
+      - POSTGRES_MM_USER
+      - POSTGRES_MM_PASSWORD
+      - TZ
     volumes:
       - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
       - ./n8n/docker/compose/withPostgresAndWorker/init-data.sh:/docker-entrypoint-initdb.d/init-data.sh
@@ -47,7 +52,7 @@ services:
   redis:
     image: redis:6-alpine
     container_name: rkt-redis
-    restart: unless-stopped
+    restart: ${RESTART_POLICY}
     volumes:
       - ${REDIS_DATA_PATH}:/data
     healthcheck:
