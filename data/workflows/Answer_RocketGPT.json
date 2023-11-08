@@ -1,0 +1,91 @@
+{
+  "name": "Answer RocketGPT",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rocketgpt/answer",
+        "options": {}
+      },
+      "id": "53229576-56db-49dc-b78d-dafb519860ca",
+      "name": "/answer Bun",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        240
+      ],
+      "webhookId": "0e6b5ce3-d9e9-4fe4-84d1-901b4bbe8b5a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.body.response_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message_type",
+              "value": "in_channel"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.body.answer }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2720ea81-7df1-4771-b948-d81c2718113b",
+      "name": "Answer in Mattermost",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1340,
+        240
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "/answer Bun": {
+      "main": [
+        [
+          {
+            "node": "Answer in Mattermost",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "990227d7-1e67-4858-9c9d-a0a0e60fd303",
+  "id": "2waxRDvoqpC9ICYe",
+  "meta": {
+    "instanceId": "fa3c8235d945ee7a390ed2bd8f4a6f5a7dd3af2602a507bde96f0b2e42e9cc49"
+  },
+  "tags": [
+    {
+      "createdAt": "2023-11-03T13:36:21.209Z",
+      "updatedAt": "2023-11-03T13:36:21.209Z",
+      "id": "5ofMIWlGXcMqfCec",
+      "name": "rocketgpt"
+    }
+  ]
+}

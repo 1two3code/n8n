@@ -1,0 +1,202 @@
+{
+  "name": "Ask/Answer LLM",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "options": {
+          "responseData": "={{ {\"response_type\": \"in_channel\"} }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "content-type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "347d5a7f-a4ea-4204-a629-748007f374c2",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        680,
+        460
+      ],
+      "webhookId": "e293a6a8-f446-418a-9788-12ffc238dda7"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5000/api/v1/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=\"{\\n  \\\"user_input\\\": \\\"{{ $json.body.text }}\\\"\\n}\"",
+        "options": {}
+      },
+      "id": "3a654ac5-9c06-4a1d-bf76-0c741965a4b9",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        920,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"response_url\": \"{{$json.body.response_url}}\"\n}",
+        "include": "none",
+        "options": {}
+      },
+      "id": "166eed31-4048-43dd-8426-ee5f37ddd9b3",
+      "name": "response_url",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [
+        960,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "id": "3328ba68-bd46-4f1e-923e-4bb7c7cb7d41",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [
+        1520,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.response_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"message_type\":\"in_channel\",\"text\":\"{{ $json.text }}\"}",
+        "options": {}
+      },
+      "id": "5750d8e6-8b6c-411d-ad88-2c2c5bf4115f",
+      "name": "respond",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1800,
+        520
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "text",
+              "stringValue": "={{ $input.item.json.results[0].internal.visible[0][1]}}"
+            }
+          ]
+        },
+        "include": "none",
+        "options": {}
+      },
+      "id": "97d3400a-9852-41e1-95f9-fd4fbc91e3fc",
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [
+        1160,
+        300
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "response_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "response_url": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ccf711d0-9624-48be-842a-7c1207d61c2b",
+  "id": "tsbXeFuc4wCbSELc",
+  "meta": {
+    "instanceId": "fa3c8235d945ee7a390ed2bd8f4a6f5a7dd3af2602a507bde96f0b2e42e9cc49"
+  },
+  "tags": []
+}
