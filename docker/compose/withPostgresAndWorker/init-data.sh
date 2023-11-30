@@ -21,3 +21,14 @@ if [ -n "${POSTGRES_N8N_USER:-}" ] && [ -n "${POSTGRES_N8N_PASSWORD:-}" ]; then
 else
 	echo "SETUP INFO: No n8n SQL Environment variables given!"
 fi
+
+if [ -n "${POSTGRES_ODOO_USER:-}" ] && [ -n "${POSTGRES_ODOO_PASSWORD:-}" ]; then
+	psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
+		CREATE DATABASE ${POSTGRES_ODOO_DB};
+		CREATE USER ${POSTGRES_ODOO_USER} WITH PASSWORD '${POSTGRES_ODOO_PASSWORD}';
+		GRANT ALL PRIVILEGES ON DATABASE ${POSTGRES_ODOO_DB} TO ${POSTGRES_ODOO_USER};
+	EOSQL
+else
+	echo "SETUP INFO: No Odoo SQL Environment variables given!"
+fi
+		# ALTER DATABASE ${POSTGRES_ODOO_DB} OWNER	TO ${POSTGRES_ODOO_USER};

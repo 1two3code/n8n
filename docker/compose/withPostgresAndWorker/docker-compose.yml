@@ -39,6 +39,9 @@ services:
       - POSTGRES_MM_DB
       - POSTGRES_MM_USER
       - POSTGRES_MM_PASSWORD
+      - POSTGRES_ODOO_DB
+      - POSTGRES_ODOO_USER
+      - POSTGRES_ODOO_PASSWORD
       - TZ
     volumes:
       - ${POSTGRES_DATA_PATH}:/var/lib/postgresql/data
